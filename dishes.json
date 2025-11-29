@@ -1,0 +1,20 @@
+[
+  {
+    "title_es": "Ceviche Tropical",
+    "title_en": "Tropical Ceviche",
+    "desc_es": "Mariscos frescos, leche de tigre cítrica y mango.",
+    "desc_en": "Fresh seafood, citrus leche of tigre and mango.",
+    "category": "Mariscos",
+    "price": 32000,
+    "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+7LJIAAAAASUVORK5CYII="
+  },
+  {
+    "title_es": "Lomo a la Parrilla",
+    "title_en": "Grilled Loin",
+    "desc_es": "Corte jugoso con papas rústicas y chimichurri.",
+    "desc_en": "Juicy cut with rustic potatoes and chimichurri.",
+    "category": "Carnes",
+    "price": 45000,
+    "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+7LJIAAAAASUVORK5CYII="
+  }
+]

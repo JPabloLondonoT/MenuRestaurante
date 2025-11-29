@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Menú</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><h1>Panel Admin</h1></div>
+    <div class="controls"><a class="linkbtn" href="index.html">↩️ Volver al menú</a></div>
+  </header>
+
+  <main class="admin-page">
+    <section class="card">
+      <h2>Agregar / Editar Plato</h2>
+      <form id="dishForm">
+        <input type="hidden" id="dishIndex" value="-1">
+        <label>Título (ES)<input id="title_es" placeholder="Ceviche Tropical"></label>
+        <label>Title (EN)<input id="title_en" placeholder="Tropical Ceviche"></label>
+        <label>Descripción (ES)<textarea id="desc_es" rows="2"></textarea></label>
+        <label>Description (EN)<textarea id="desc_en" rows="2"></textarea></label>
+        <label>Categoría<input id="category" placeholder="Mariscos"></label>
+        <label>Precio<input id="price" placeholder="32000" inputmode="numeric"></label>
+        <label>Imagen (subir, max <span id="maxSizeLabel">2</span> MB)
+          <input id="imgFile" type="file" accept="image/*">
+        </label>
+        <div class="preview"><img id="imgPreview" alt="previsualización" /></div>
+
+        <div class="admin-actions">
+          <button type="button" id="addDish">Agregar / Actualizar</button>
+          <button type="button" id="clearForm">Limpiar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Platos existentes</h2>
+      <div class="admin-tools">
+        <button id="downloadJSON">Descargar dishes.json</button>
+        <input id="uploadJSON" type="file" accept=".json">
+        <button id="resetSample">Restaurar ejemplo</button>
+      </div>
+      <div id="adminList" class="admin-list"></div>
+      <p class="hint">Los cambios se guardan en localStorage. Para publicar: descarga <code>dishes.json</code> y súbelo a tu repo en la raíz del sitio.</p>
+    </section>
+  </main>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
