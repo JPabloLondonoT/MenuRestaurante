@@ -1,25 +1,21 @@
 // =====================================
 // CONFIG
 // =====================================
-const STORAGE_KEY = "dishesData";
 let dishes = [];
 let selectedDishId = null;
 
+const PAGE_SIZE = 4; // 4 platos por página del libro
+let currentPage = 1;
+
 // =====================================
-// LOAD JSON or LOCALSTORAGE
+// LOAD JSON
 // =====================================
 
 async function loadInitialDishes() {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-        dishes = JSON.parse(stored);
-        return;
-    }
-
     try {
         const res = await fetch("dishes.json");
         dishes = await res.json();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
+        console.log("Platos cargados desde dishes.json", dishes);
     } catch (err) {
         console.error("Error cargando dishes.json", err);
         dishes = [];
@@ -27,72 +23,81 @@ async function loadInitialDishes() {
 }
 
 // =====================================
-// SAVE
+// ADMIN SAVE
 // =====================================
-
+// Nota: Solo afecta a la tabla y al menú en vivo.
+// No se guarda en dishes.json (GitHub Pages no permite escribir).
 function saveDishes() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes));
+    console.warn("⚠️ En GitHub Pages los cambios NO se guardan en dishes.json.");
 }
 
 // =====================================
-// MENU RENDER
+// MENU (MODE MENU.HTML - BOOK STYLE)
 // =====================================
 
-function renderMenu() {
-    const container = document.getElementById("menuContainer");
-    if (!container) return;
+function renderBook() {
+    const book = document.getElementById("book");
+    if (!book) return;
 
-    container.innerHTML = "";
+    book.innerHTML = "";
 
     if (dishes.length === 0) {
-        container.innerHTML = `<p style="text-align:center;">No hay platos aún.</p>`;
+        book.innerHTML = `<p class="empty">No hay platos aún.</p>`;
         return;
     }
 
-    dishes.forEach((dish) => {
+    const totalPages = Math.ceil(dishes.length / PAGE_SIZE);
+    document.getElementById("pageCounter").innerText =
+        `${currentPage} / ${totalPages}`;
+
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageDishes = dishes.slice(start, start + PAGE_SIZE);
+
+    pageDishes.forEach(d => {
         const card = document.createElement("div");
-        card.className = "dish-card";
+        card.className = "page";
 
         card.innerHTML = `
-            <img class="dish-thumb" src="${dish.image}" alt="${dish.name}">
-            <h3>${dish.name}</h3>
-            <p>${dish.description}</p>
-            <span class="price">$ ${dish.price}</span>
+            <img src="${d.img || d.image}" class="dish-img" alt="">
+            <h3>${d.title_es || d.name}</h3>
+            <p>${d.desc_es || d.description}</p>
+            <strong>$ ${d.price}</strong>
         `;
 
-        container.appendChild(card);
-
-        // animación al hacer clic ampliando la imagen
-        card.querySelector(".dish-thumb").addEventListener("click", () => {
-            showImagePopup(dish.image);
-        });
+        book.appendChild(card);
     });
 }
 
 // =====================================
-// POPUP DE IMAGEN AMPLIADA
+// CONTROLES DE PÁGINA
 // =====================================
 
-function showImagePopup(imgBase64) {
-    const popup = document.createElement("div");
-    popup.className = "image-popup";
-    popup.innerHTML = `
-        <div class="popup-content">
-            <span class="close-btn">&times;</span>
-            <img src="${imgBase64}">
-        </div>
-    `;
+function setupPagination() {
+    const prev = document.getElementById("prevBtn");
+    const next = document.getElementById("nextBtn");
 
-    document.body.appendChild(popup);
+    if (prev) {
+        prev.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderBook();
+            }
+        };
+    }
 
-    popup.querySelector(".close-btn").onclick = () => popup.remove();
-    popup.onclick = (e) => {
-        if (e.target === popup) popup.remove();
-    };
+    if (next) {
+        next.onclick = () => {
+            const totalPages = Math.ceil(dishes.length / PAGE_SIZE);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderBook();
+            }
+        };
+    }
 }
 
 // =====================================
-// ADMIN PANEL
+// MENU (MODE ADMIN.HTML - LIST STYLE)
 // =====================================
 
 function renderAdminTable() {
@@ -105,12 +110,12 @@ function renderAdminTable() {
         const row = document.createElement("tr");
 
         row.innerHTML = `
-            <td>${dish.name}</td>
+            <td>${dish.title_es || dish.name}</td>
             <td>${dish.price}</td>
-            <td><img src="${dish.image}" style="width:50px; height:50px; object-fit:cover;"></td>
+            <td><img src="${dish.img || dish.image}" style="width:50px; height:50px; object-fit:cover;"></td>
             <td>
-                <button onclick="editDish(${dish.id})">Editar</button>
-                <button onclick="deleteDish(${dish.id})" class="danger">Eliminar</button>
+                <button onclick="editDish('${dish.id}')">Editar</button>
+                <button onclick="deleteDish('${dish.id}')" class="danger">Eliminar</button>
             </td>
         `;
 
@@ -121,23 +126,6 @@ function renderAdminTable() {
 // =====================================
 // ADD / EDIT / DELETE DISH
 // =====================================
-
-document.addEventListener("DOMContentLoaded", () => {
-    loadInitialDishes().then(() => {
-        renderMenu();
-        renderAdminTable();
-    });
-
-    const form = document.getElementById("dishForm");
-    if (form) {
-        form.addEventListener("submit", saveDishFromForm);
-    }
-
-    const imageInput = document.getElementById("imageInput");
-    if (imageInput) {
-        imageInput.addEventListener("change", handleImageUpload);
-    }
-});
 
 function saveDishFromForm(e) {
     e.preventDefault();
@@ -153,7 +141,6 @@ function saveDishFromForm(e) {
     }
 
     if (selectedDishId) {
-        // edit
         const index = dishes.findIndex((d) => d.id === selectedDishId);
         dishes[index] = {
             ...dishes[index],
@@ -163,31 +150,31 @@ function saveDishFromForm(e) {
             image
         };
     } else {
-        // new
-        const newDish = {
+        dishes.push({
             id: Date.now(),
             name,
             description,
             price,
             image
-        };
-        dishes.push(newDish);
+        });
     }
 
     saveDishes();
     renderAdminTable();
-    renderMenu();
+    renderBook();
     clearForm();
 }
 
 function editDish(id) {
-    const dish = dishes.find((d) => d.id === id);
+    const dish = dishes.find((d) => d.id == id);
+    if (!dish) return;
+
     selectedDishId = id;
 
-    document.getElementById("dishName").value = dish.name;
-    document.getElementById("dishDescription").value = dish.description;
+    document.getElementById("dishName").value = dish.name || dish.title_es;
+    document.getElementById("dishDescription").value = dish.description || dish.desc_es;
     document.getElementById("dishPrice").value = dish.price;
-    document.getElementById("previewImg").src = dish.image;
+    document.getElementById("previewImg").src = dish.image || dish.img;
 
     document.getElementById("formTitle").innerText = "Editar Plato";
 }
@@ -195,10 +182,10 @@ function editDish(id) {
 function deleteDish(id) {
     if (!confirm("¿Eliminar este plato?")) return;
 
-    dishes = dishes.filter((d) => d.id !== id);
+    dishes = dishes.filter((d) => d.id != id);
     saveDishes();
     renderAdminTable();
-    renderMenu();
+    renderBook();
 }
 
 function clearForm() {
@@ -222,3 +209,21 @@ function handleImageUpload(e) {
     };
     reader.readAsDataURL(file);
 }
+
+// =====================================
+// INIT
+// =====================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadInitialDishes().then(() => {
+        renderBook();
+        renderAdminTable();
+        setupPagination();
+    });
+
+    const form = document.getElementById("dishForm");
+    if (form) form.addEventListener("submit", saveDishFromForm);
+
+    const imageInput = document.getElementById("imageInput");
+    if (imageInput) imageInput.addEventListener("change", handleImageUpload);
+});
