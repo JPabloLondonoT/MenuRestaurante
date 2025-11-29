@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin - Menú</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Pequeñas ayudas visuales en caso de que styles.css no cargue */
+    .admin-page{max-width:1100px;margin:18px auto;display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:10px}
+    .card{background:#fff;padding:12px;border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,.08)}
+    label{display:block;margin-top:8px;font-size:0.95rem}
+    input, textarea{width:100%;padding:8px;border-radius:6px;border:1px solid #ddd}
+    .preview img{max-width:100%;max-height:160px;border-radius:6px;margin-top:8px;object-fit:cover}
+    .admin-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:10px}
+    .admin-item{padding:10px;border-radius:8px;border:1px solid #eee;background:#fafafa;display:flex;gap:10px;align-items:center}
+    .thumb-small{width:90px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #ddd}
+    .info{flex:1}
+    .admin-actions{display:flex;gap:8px;margin-top:10px}
+    button{cursor:pointer;padding:8px 10px;border-radius:8px;border:1px solid #eee;background:#fff}
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -13,37 +27,68 @@
   </header>
 
   <main class="admin-page">
+    <!-- Formulario -->
     <section class="card">
-      <h2>Agregar / Editar Plato</h2>
-      <form id="dishForm">
+      <h2 id="formTitle">Agregar / Editar Plato</h2>
+
+      <form id="dishForm" onsubmit="return false;">
         <input type="hidden" id="dishIndex" value="-1">
-        <label>Título (ES)<input id="title_es" placeholder="Ceviche Tropical"></label>
-        <label>Title (EN)<input id="title_en" placeholder="Tropical Ceviche"></label>
-        <label>Descripción (ES)<textarea id="desc_es" rows="2"></textarea></label>
-        <label>Description (EN)<textarea id="desc_en" rows="2"></textarea></label>
-        <label>Categoría<input id="category" placeholder="Mariscos"></label>
-        <label>Precio<input id="price" placeholder="32000" inputmode="numeric"></label>
-        <label>Imagen (subir, max <span id="maxSizeLabel">2</span> MB)
+
+        <label>Título (ES)
+          <input id="title_es" placeholder="Ceviche Tropical" />
+        </label>
+
+        <label>Title (EN)
+          <input id="title_en" placeholder="Tropical Ceviche" />
+        </label>
+
+        <label>Descripción (ES)
+          <textarea id="desc_es" rows="3" placeholder="Mariscos frescos..."></textarea>
+        </label>
+
+        <label>Description (EN)
+          <textarea id="desc_en" rows="3" placeholder="Fresh seafood..."></textarea>
+        </label>
+
+        <label>Categoría
+          <input id="category" placeholder="Mariscos" />
+        </label>
+
+        <label>Precio
+          <input id="price" placeholder="32000" inputmode="numeric" />
+        </label>
+
+        <hr style="margin:12px 0">
+
+        <label>Miniatura (img) — imagen pequeña (máx 4 MB)
           <input id="imgFile" type="file" accept="image/*">
         </label>
-        <div class="preview"><img id="imgPreview" alt="previsualización" /></div>
+        <div class="preview"><img id="imgPreview" alt="previsualización miniatura" /></div>
 
-        <div class="admin-actions">
+        <label>Fondo (background) — imagen de la página completa (máx 6 MB)
+          <input id="bgFile" type="file" accept="image/*">
+        </label>
+        <div class="preview"><img id="bgPreview" alt="previsualización fondo" /></div>
+
+        <div class="admin-actions" style="margin-top:12px">
           <button type="button" id="addDish">Agregar / Actualizar</button>
           <button type="button" id="clearForm">Limpiar</button>
+          <button type="button" id="downloadJSON">Descargar dishes.json</button>
         </div>
       </form>
     </section>
 
+    <!-- Lista -->
     <section class="card">
       <h2>Platos existentes</h2>
-      <div class="admin-tools">
-        <button id="downloadJSON">Descargar dishes.json</button>
-        <input id="uploadJSON" type="file" accept=".json">
-        <button id="resetSample">Restaurar ejemplo</button>
-      </div>
+
       <div id="adminList" class="admin-list"></div>
-      <p class="hint">Los cambios se guardan en localStorage. Para publicar: descarga <code>dishes.json</code> y súbelo a tu repo en la raíz del sitio.</p>
+
+      <p class="hint" style="margin-top:12px">
+        Al entrar esta página carga automáticamente <code>dishes.json</code> del servidor.
+        Edita y agrega platos aquí. Cuando termines, pulsa <strong>Descargar dishes.json</strong>
+        y sube ese archivo al repo para publicar los cambios.
+      </p>
     </section>
   </main>
 
