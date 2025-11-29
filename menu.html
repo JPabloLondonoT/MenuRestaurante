@@ -11,6 +11,7 @@
 <body>
   <header class="topbar">
     <div class="brand"><h1>Restaurante</h1></div>
+
     <div class="controls">
       <label class="small">Idioma
         <select id="langSelect" aria-label="Seleccionar idioma">
@@ -18,11 +19,14 @@
           <option value="en">EN</option>
         </select>
       </label>
+
       <label class="small">Categoría
-        <select id="catFilter"><option value="all">Todas</option></select>
+        <select id="catFilter">
+          <option value="all">Todas</option>
+        </select>
       </label>
+
       <button id="toggleDark" title="Modo oscuro">🌙</button>
-      <a class="linkbtn" href="admin.html">⚙️ Admin</a>
     </div>
   </header>
 
@@ -47,8 +51,8 @@
     </div>
   </div>
 
-  <!-- GSAP CDN for nicer flip -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-pk2wqQz6rZ0u5W+Y9Z7t8+vP3Qd6w2sRr9qz6m3wqD0u3vYjTQxQfF8B2v4h6H6XfQbq+7g6Z5Z5YwM0sQx0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- GSAP para animación -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
   <script src="script.js" defer></script>
 </body>
