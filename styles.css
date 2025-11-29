@@ -1,0 +1,37 @@
+/* Mejoras visuales y animaciones extras */
+:root{
+  --accent:#c94f2a;
+  --shadow:0 12px 40px rgba(0,0,0,.12);
+  font-family: Inter, sans-serif;
+}
+body{
+  margin:0;background:#f6f4f1;display:flex;justify-content:center;
+}
+.topbar{text-align:center;padding:15px 0;font-size:1.4rem;font-weight:600;color:var(--accent)}
+.book-wrap{width:100%;max-width:900px}
+.book{position:relative;height:560px;perspective:1400px}
+.page{
+  width:640px;height:480px;background:white;border-radius:14px;box-shadow:var(--shadow);
+  position:absolute;opacity:0;transition:600ms;
+}
+.page.active{opacity:1;transform:rotateY(0deg) scale(1)}
+.page.left{opacity:.9;transform:translateX(-220px) rotateY(14deg) scale(.9)}
+.page.right{opacity:.9;transform:translateX(220px) rotateY(-14deg) scale(.9)}
+.page-inner{text-align:center;padding:25px}
+.dish-card{border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.dish-img{width:100%;height:260px;object-fit:cover;cursor:pointer;transition:.4s}
+.dish-img:hover{transform:scale(1.05)}
+.animated-img{animation:float 4s infinite ease-in-out}
+@keyframes float{50%{transform:translateY(-6px)}}
+.price{color:var(--accent);font-weight:bold;font-size:1.2rem}
+
+/* Controls */
+.controls{text-align:center;margin-top:20px}
+button{cursor:pointer;padding:10px 15px;border-radius:8px;border:1px solid #ddd}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,.5)}
+.hidden{display:none}
+.lightbox-content{background:white;padding:20px;border-radius:10px;animation:pop .3s}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.close{position:absolute;margin-left:280px;margin-top:-10px}
