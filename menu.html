@@ -1,59 +1,72 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Menú Interactivo - Restaurante</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Menú Interactivo</title>
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Manifest PWA opcional -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#c94f2a"/>
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#c94f2a">
 </head>
+
 <body>
+  <!-- ======================== HEADER ======================== -->
   <header class="topbar">
-    <div class="brand"><h1>Restaurante</h1></div>
+    
+    <!-- Botón abrir menú lateral -->
+    <button id="openSidebar" class="icon-btn">☰</button>
 
-    <div class="controls">
-      <label class="small">Idioma
-        <select id="langSelect" aria-label="Seleccionar idioma">
-          <option value="es">ES</option>
-          <option value="en">EN</option>
-        </select>
-      </label>
+    <div class="controls-right">
+      <!-- Idioma -->
+      <select id="langSelect" class="langSelectHeader">
+        <option value="es">ES</option>
+        <option value="en">EN</option>
+      </select>
 
-      <label class="small">Categoría
-        <select id="catFilter">
-          <option value="all">Todas</option>
-        </select>
-      </label>
-
-      <button id="toggleDark" title="Modo oscuro">🌙</button>
+      <!-- Modo oscuro -->
+      <button id="toggleDark" class="icon-btn">🌙</button>
     </div>
   </header>
 
+
+  <!-- ======================== SIDEBAR CATEGORÍAS ======================== -->
+  <aside id="sidebar" class="sidebar hidden">
+    <div class="sidebar-header">
+      <h3>Categorías</h3>
+      <button id="closeSidebar" class="icon-btn">✕</button>
+    </div>
+    <ul id="catList" class="cat-list"></ul>
+  </aside>
+
+
+  <!-- ======================== LIBRO ======================== -->
   <main class="book-wrap">
-    <div id="book" class="book" aria-live="polite"></div>
+    <div id="book" class="book"></div>
 
     <nav class="controls-nav">
-      <button id="prevBtn">◀</button>
+      <button id="prevBtn" class="nav-btn">◀</button>
       <span id="pageCounter">0 / 0</span>
-      <button id="nextBtn">▶</button>
+      <button id="nextBtn" class="nav-btn">▶</button>
     </nav>
   </main>
 
-  <!-- Lightbox -->
-  <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true">
+
+  <!-- ======================== LIGHTBOX ======================== -->
+  <div id="lightbox" class="lightbox hidden">
     <div class="lightbox-content">
       <button id="closeLb" class="close">✕</button>
-      <img id="lbImg" src="" alt="foto ampliada" />
-      <h3 id="lbTitle"></h3>
-      <p id="lbDesc"></p>
-      <p id="lbPrice"></p>
+      <img id="lbImg" src="" alt="Foto">
     </div>
   </div>
 
-  <!-- GSAP para animación -->
+
+  <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
+  <!-- Script principal -->
   <script src="script.js" defer></script>
 </body>
 </html>
