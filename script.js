@@ -1,10 +1,17 @@
-
+/* ============================================================
+   VARIABLES GLOBALES
+   ============================================================ */
 let dishes = [];
 let currentPage = 0;
 let filtered = [];
 let lang = "es";
 const MAX_IMG_MB = 4;
 const MAX_BG_MB = 6;
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+const flipSound = document.getElementById("flipSound");
 
 /* ============================================================
    UTILIDADES: Convertir imágenes a Base64
@@ -30,7 +37,7 @@ async function loadDishes() {
     dishes = [];
   }
 
-  // Si es el menú
+  // Menú
   if (document.getElementById("book")) {
     initCategories();
     initSidebarCategories();
@@ -39,7 +46,7 @@ async function loadDishes() {
     updateCounter();
   }
 
-  // Si es el admin
+  // Admin
   if (document.getElementById("adminList")) {
     adminRenderList();
   }
@@ -51,6 +58,10 @@ async function loadDishes() {
 function initCategories() {
   const select = document.getElementById("catFilter");
   if (!select) return;
+
+  select.innerHTML = `
+    <option value="all">${lang === "es" ? "Todas" : "All"}</option>
+  `;
 
   const cats = [...new Set(dishes.map(d => d.category))];
 
@@ -80,10 +91,14 @@ function applyFilter() {
 }
 
 /* ============================================================
-   MENU: Lightbox con miniatura real
+   MENU: Lightbox
    ============================================================ */
 function openLightbox(d) {
   document.getElementById("lbImg").src = d.img;
+  document.getElementById("lbTitle").textContent = lang === "es" ? d.title_es : d.title_en;
+  document.getElementById("lbDesc").textContent = lang === "es" ? d.desc_es : d.desc_en;
+  document.getElementById("lbPrice").textContent = "$ " + Number(d.price).toLocaleString();
+
   document.getElementById("lightbox").classList.remove("hidden");
 }
 
@@ -93,26 +108,39 @@ if (document.getElementById("closeLb")) {
 }
 
 /* ============================================================
-   MENU: Paginación
+   BOTONES DE PÁGINAS
    ============================================================ */
+
+function playPageSound() {
+  const flipSound = new Audio("sounds/page-flip.mp3");
+  flipSound.currentTime = 0;
+  flipSound.play();
+}
+
+function nextPage() {
+  if (currentPage < filtered.length - 1) {
+    playPageSound();
+    currentPage++;
+    renderPage(1);
+    updateCounter();
+  }
+}
+
+function prevPage() {
+  if (currentPage > 0) {
+    playPageSound();
+    currentPage--;
+    renderPage(-1);
+    updateCounter();
+  }
+}
+
 if (document.getElementById("nextBtn")) {
-  document.getElementById("nextBtn").onclick = () => {
-    if (currentPage < filtered.length - 1) {
-      currentPage++;
-      renderPage();
-      updateCounter();
-    }
-  };
+  document.getElementById("nextBtn").onclick = nextPage;
 }
 
 if (document.getElementById("prevBtn")) {
-  document.getElementById("prevBtn").onclick = () => {
-    if (currentPage > 0) {
-      currentPage--;
-      renderPage();
-      updateCounter();
-    }
-  };
+  document.getElementById("prevBtn").onclick = prevPage;
 }
 
 function updateCounter() {
@@ -121,17 +149,22 @@ function updateCounter() {
 }
 
 /* ============================================================
-   MENU: Cambiar idioma
+   CAMBIO DE IDIOMA (categorías, títulos, sidebar)
    ============================================================ */
 if (document.getElementById("langSelect")) {
   document.getElementById("langSelect").onchange = (e) => {
     lang = e.target.value;
+    document.getElementById("catTitle").textContent =
+      lang === "es" ? "Categorías" : "Categories";
+
+    initCategories();
+    initSidebarCategories();
     renderPage();
   };
 }
 
 /* ============================================================
-   MENU: Modo oscuro
+   MODO OSCURO
    ============================================================ */
 if (document.getElementById("toggleDark")) {
   document.getElementById("toggleDark").onclick = () => {
@@ -140,9 +173,104 @@ if (document.getElementById("toggleDark")) {
 }
 
 /* ============================================================
-   ==================== ADMIN SYSTEM ============================
+   ANIMACIÓN PASO PÁGINA + SONIDO + SWIPE
    ============================================================ */
+function addSwipeEvents(layer) {
+  layer.addEventListener("touchstart", e => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+  layer.addEventListener("touchend", e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  });
 
+  layer.addEventListener("mousedown", e => {
+    touchStartX = e.screenX;
+  });
+  layer.addEventListener("mouseup", e => {
+    touchEndX = e.screenX;
+    handleSwipe();
+  });
+}
+
+function handleSwipe() {
+  const diff = touchEndX - touchStartX;
+  if (Math.abs(diff) < 40) return;
+
+  if (diff < 0) nextPage();
+  else prevPage();
+}
+
+/* ============================================================
+   RENDER PÁGINA DOBLE (libro real con GSAP)
+   ============================================================ */
+function renderPage(direction = 0) {
+  const book = document.getElementById("book");
+  if (!book) return;
+
+  book.innerHTML = "";
+
+  if (filtered.length === 0) {
+    book.innerHTML = "<p>No hay platos disponibles.</p>";
+    return;
+  }
+
+  const d = filtered[currentPage];
+
+  const pageDouble = document.createElement("div");
+  pageDouble.className = "page-double";
+
+  const shadow = document.createElement("div");
+  shadow.className = "page-shadow";
+
+  const left = document.createElement("div");
+  left.className = "left-page";
+
+  const right = document.createElement("div");
+  right.className = "right-page";
+
+  right.innerHTML = `
+      <h2>${lang === "es" ? d.title_es : d.title_en}</h2>
+      <p>${lang === "es" ? d.desc_es : d.desc_en}</p>
+      <p class="price">$ ${Number(d.price).toLocaleString()}</p>
+  `;
+  right.style.backgroundImage = `url('${d.background}')`;
+  right.style.backgroundSize = "cover";
+
+  right.onclick = () => openLightbox(d);
+
+  pageDouble.appendChild(left);
+  pageDouble.appendChild(right);
+  pageDouble.appendChild(shadow);
+
+  // Eventos táctiles en toda la página
+  addSwipeEvents(document.getElementById("touchLeft"));
+  addSwipeEvents(document.getElementById("touchRight"));
+
+  book.appendChild(pageDouble);
+
+  // Animación estilo libro + sonido
+  if (direction !== 0) {
+    flipSound.currentTime = 0;
+    flipSound.play();
+
+    gsap.fromTo(
+      pageDouble,
+      { rotateY: direction > 0 ? -90 : 90, opacity: 0 },
+      { rotateY: 0, opacity: 1, duration: 0.6, ease: "power2.out" }
+    );
+  } else {
+    gsap.fromTo(
+      pageDouble,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.4 }
+    );
+  }
+}
+
+/* ============================================================
+   ==================== ADMIN SIN CAMBIOS ======================
+   ============================================================ */
 function adminRenderList() {
   const cont = document.getElementById("adminList");
   if (!cont) return;
@@ -218,7 +346,7 @@ async function adminSave() {
   };
 
   const imgFile = document.getElementById("imgFile").files[0];
-  const bgFile  = document.getElementById("bgFile").files[0];
+  const bgFile = document.getElementById("bgFile").files[0];
 
   if (imgFile) {
     if (imgFile.size > MAX_IMG_MB * 1024 * 1024) {
@@ -254,7 +382,7 @@ function adminDownload() {
 }
 
 /* ============================================================
-   SIDEBAR: categorías dinámicas
+   SIDEBAR CATEGORÍAS
    ============================================================ */
 function initSidebarCategories() {
   const list = document.getElementById("catList");
@@ -262,10 +390,8 @@ function initSidebarCategories() {
 
   list.innerHTML = "";
 
-  const cats = [...new Set(dishes.map(d => d.category))];
-
   const liAll = document.createElement("li");
-  liAll.textContent = "Todas";
+  liAll.textContent = lang === "es" ? "Todas" : "All";
   liAll.className = "cat-item";
   liAll.onclick = () => {
     filtered = dishes;
@@ -275,6 +401,8 @@ function initSidebarCategories() {
     closeSidebar();
   };
   list.appendChild(liAll);
+
+  const cats = [...new Set(dishes.map(d => d.category))];
 
   cats.forEach(cat => {
     const li = document.createElement("li");
@@ -305,50 +433,6 @@ if (document.getElementById("openSidebar")) {
 
 if (document.getElementById("closeSidebar")) {
   document.getElementById("closeSidebar").onclick = closeSidebar;
-}
-
-/* ============================================================
-   MENU: Página con animación GSAP (versión final)
-   ============================================================ */
-function renderPage() {
-  const book = document.getElementById("book");
-  if (!book) return;
-
-  book.innerHTML = "";
-
-  if (filtered.length === 0) {
-    book.innerHTML = "<p>No hay platos disponibles.</p>";
-    return;
-  }
-
-  const d = filtered[currentPage];
-
-  const page = document.createElement("div");
-  page.className = "page";
-  page.style.backgroundImage = `url('${d.background}')`;
-  page.style.backgroundSize = "cover";
-  page.style.backgroundPosition = "center";
-
-  const content = document.createElement("div");
-  content.className = "page-content";
-
-  content.innerHTML = `
-      <h2>${lang === "es" ? d.title_es : d.title_en}</h2>
-      <p>${lang === "es" ? d.desc_es : d.desc_en}</p>
-      <p class="price">$ ${Number(d.price).toLocaleString()}</p>
-  `;
-
-  page.appendChild(content);
-  page.addEventListener("click", () => openLightbox(d));
-
-  book.appendChild(page);
-
-  // Animación tipo libro
-  gsap.fromTo(
-    page,
-    { opacity: 0, rotateY: -45 },
-    { opacity: 1, rotateY: 0, duration: 0.5, ease: "power2.out" }
-  );
 }
 
 /* ============================================================

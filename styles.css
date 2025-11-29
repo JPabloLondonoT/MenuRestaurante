@@ -158,3 +158,23 @@ input, textarea, select{width:100%;padding:8px;margin-top:6px;border-radius:6px;
   font-size: 1.4rem;
   font-weight: bold;
 }
+
+body.dark {
+  background: #111;
+  color: #f1f1f1;
+}
+
+body.dark .page {
+  box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+body.dark select,
+body.dark button {
+  background: #222;
+  color: #fff;
+  border-color: #555;
+}
+
+body.dark .page-content {
+  background: rgba(0,0,0,0.5);
+}

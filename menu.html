@@ -6,27 +6,95 @@
   <title>Menú Interactivo</title>
 
   <link rel="stylesheet" href="styles.css">
-
-  <!-- Manifest PWA opcional -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#c94f2a">
+
+  <style>
+    /* --- doble página tipo libro --- */
+    .book-wrap {
+      perspective: 2000px;
+    }
+
+    .book {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 120px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .page-double {
+      position: relative;
+      width: 90%;
+      height: 90%;
+      display: flex;
+      box-shadow: 0 0 30px rgba(0,0,0,.2);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .left-page,
+    .right-page {
+      width: 50%;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .page-shadow {
+      position: absolute;
+      top: 0;
+      width: 40px;
+      height: 100%;
+      background: linear-gradient(to left, rgba(0,0,0,.2), transparent);
+      right: 50%;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* dark mode */
+    body.dark {
+      background: #111;
+      color: white;
+    }
+
+    body.dark .page-double {
+      background: #222;
+    }
+
+    /* tocar para pasar */
+    .touch-layer {
+      position: absolute;
+      width: 50%;
+      height: 100%;
+      top: 0;
+      z-index: 20;
+    }
+    .touch-left { left: 0; }
+    .touch-right { right: 0; }
+
+  </style>
+
 </head>
 
 <body>
   <!-- ======================== HEADER ======================== -->
   <header class="topbar">
-    
-    <!-- Botón abrir menú lateral -->
     <button id="openSidebar" class="icon-btn">☰</button>
 
     <div class="controls-right">
-      <!-- Idioma -->
       <select id="langSelect" class="langSelectHeader">
         <option value="es">ES</option>
         <option value="en">EN</option>
       </select>
 
-      <!-- Modo oscuro -->
       <button id="toggleDark" class="icon-btn">🌙</button>
     </div>
   </header>
@@ -35,7 +103,7 @@
   <!-- ======================== SIDEBAR CATEGORÍAS ======================== -->
   <aside id="sidebar" class="sidebar hidden">
     <div class="sidebar-header">
-      <h3>Categorías</h3>
+      <h3 id="catTitle">Categorías</h3>
       <button id="closeSidebar" class="icon-btn">✕</button>
     </div>
     <ul id="catList" class="cat-list"></ul>
@@ -45,6 +113,10 @@
   <!-- ======================== LIBRO ======================== -->
   <main class="book-wrap">
     <div id="book" class="book"></div>
+
+    <!-- capas táctiles para swipe -->
+    <div class="touch-layer touch-left" id="touchLeft"></div>
+    <div class="touch-layer touch-right" id="touchRight"></div>
 
     <nav class="controls-nav">
       <button id="prevBtn" class="nav-btn">◀</button>
@@ -62,6 +134,8 @@
     </div>
   </div>
 
+  <!-- ===== sonido de pasar página ===== -->
+  <audio id="flipSound" src="page-flip.mp3" preload="auto"></audio>
 
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
