@@ -1,114 +1,40 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Menú Interactivo - Restaurante</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#c94f2a"/>
-  <link rel="stylesheet" href="styles.css" />
+
+<!doctype html><html lang="es"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Menu Restaurante</title>
+<link rel="stylesheet" href="styles.css"/>
+<link rel="manifest" href="manifest.json"/>
 </head>
 <body>
-  <header class="topbar">
-    <div class="left">
-      <h1 id="brand">Restaurante</h1>
-      <div class="controls-top">
-        <select id="langSelect" aria-label="Seleccionar idioma">
-          <option value="es">ES</option>
-          <option value="en">EN</option>
-        </select>
-        <select id="catFilter" aria-label="Filtrar categoría">
-          <option value="all">Todas</option>
-        </select>
-        <button id="toggleDark" title="Toggle dark">🌙</button>
-      </div>
-    </div>
+<header class="topbar">
+  <h1>Menú Interactivo</h1>
+  <button id="adminBtn">⚙️ Admin</button>
+  <button id="cartBtn">🛒 (<span id="cartCount">0</span>)</button>
+  <button id="themeBtn">🌙</button>
+  <select id="langSel"><option value="es">ES</option><option value="en">EN</option></select>
+</header>
 
-    <div class="right">
-      <button id="openAdmin">Panel Admin</button>
-      <button id="openCart">Carrito (<span id="cartCount">0</span>)</button>
-    </div>
-  </header>
+<main id="menu"></main>
 
-  <main class="book-wrap">
-    <div id="book" class="book">
-      <!-- Pages will be injected by app.js -->
-    </div>
+<div id="cartDrawer" class="drawer hidden">
+  <h2>Carrito</h2>
+  <div id="cartItems"></div>
+  <p>Total: <span id="cartTotal"></span></p>
+  <button id="closeCart">Cerrar</button>
+</div>
 
-    <nav class="controls">
-      <button id="prevBtn" aria-label="Anterior">◀</button>
-      <span id="pageCounter">0 / 0</span>
-      <button id="nextBtn" aria-label="Siguiente">▶</button>
-    </nav>
-  </main>
+<div id="adminPanel" class="drawer hidden">
+  <h2>Admin Platos</h2>
+  <form id="dishForm">
+    <input name="name" placeholder="Nombre"/>
+    <input name="price" placeholder="Precio"/>
+    <select name="cat"><option>Entradas</option><option>Platos fuertes</option></select>
+    <input type="file" name="imgFile"/>
+    <button>Guardar</button>
+  </form>
+  <div id="dishList"></div>
+  <button id="closeAdmin">Cerrar</button>
+</div>
 
-  <!-- Lightbox -->
-  <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true">
-    <div class="lightbox-content">
-      <button id="closeLb" class="close">✕</button>
-      <img id="lbImg" alt="foto ampliada"/>
-      <h3 id="lbTitle"></h3>
-      <p id="lbDesc"></p>
-      <p id="lbPrice"></p>
-      <button id="addToCartLb">Añadir al carrito</button>
-    </div>
-  </div>
-
-  <!-- Cart drawer -->
-  <aside id="cartDrawer" class="drawer hidden" aria-hidden="true">
-    <h3>Carrito</h3>
-    <ul id="cartList"></ul>
-    <div class="cart-footer">
-      <strong id="cartTotal">Total: $0</strong>
-      <button id="checkout">Finalizar</button>
-      <button id="closeCart">Cerrar</button>
-    </div>
-  </aside>
-
-  <!-- Admin panel -->
-  <div id="admin" class="admin hidden">
-    <div class="admin-inner">
-      <button id="closeAdmin" class="close-admin">✕</button>
-      <h3>Panel de administración</h3>
-      <p>Agrega/edita tus platos. Guarda cambios en localStorage o descarga JSON para subir al repo.</p>
-
-      <form id="dishForm">
-        <input type="hidden" id="dishIndex" value="-1" />
-        <label>Título (ES)<input id="title_es" /></label>
-        <label>Title (EN)<input id="title_en" /></label>
-        <label>Descripción (ES)<textarea id="desc_es"></textarea></label>
-        <label>Description (EN)<textarea id="desc_en"></textarea></label>
-        <label>Categoría<input id="category" /></label>
-        <label>Precio<input id="price" /></label>
-        <label>Imagen (ruta dentro /images/)<input id="img" placeholder="images/mi-plato.jpg"/></label>
-        <div class="admin-actions">
-          <button type="button" id="addDish">Agregar/Actualizar</button>
-          <button type="button" id="clearForm">Limpiar</button>
-        </div>
-      </form>
-
-      <div class="admin-tools">
-        <button id="downloadJSON">Descargar JSON</button>
-        <input type="file" id="uploadJSON" accept=".json"/>
-        <button id="resetSample">Restaurar ejemplo</button>
-      </div>
-
-      <div id="adminList"></div>
-    </div>
-  </div>
-
-  <!-- PWA prompt area -->
-  <div id="pwaPrompt" class="pwa hidden">
-    <button id="installBtn">Instalar Menú (PWA)</button>
-    <button id="dismissPwa">Cerrar</button>
-  </div>
-
-  <script src="app.js"></script>
-  <script>
-    // register service worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(()=>console.log('SW reg failed'));
-    }
-  </script>
-</body>
-</html>
+<script src="app.js"></script>
+</body></html>
