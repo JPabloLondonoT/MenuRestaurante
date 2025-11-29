@@ -3,52 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Menú Interactivo - Restaurante</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#c94f2a"/>
+  <title>Restaurante</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+    }
+    h1 { font-size: 2rem; margin-bottom: 2rem; }
+    .btn {
+      padding: 1rem 2rem;
+      margin: 0.5rem;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #c94f2a;
+      color: white;
+      transition: transform 0.15s ease;
+    }
+    .btn:hover { transform: scale(1.05); }
+  </style>
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="brand"><h1>Restaurante</h1></div>
-    <div class="controls">
-      <label class="small">Idioma
-        <select id="langSelect" aria-label="Seleccionar idioma">
-          <option value="es">ES</option>
-          <option value="en">EN</option>
-        </select>
-      </label>
-      <label class="small">Categoría
-        <select id="catFilter"><option value="all">Todas</option></select>
-      </label>
-      <button id="toggleDark" title="Modo oscuro">🌙</button>
-      <a class="linkbtn" href="admin.html">⚙️ Admin</a>
-    </div>
-  </header>
+  <h1>Bienvenido</h1>
 
-  <main class="book-wrap">
-    <div id="book" class="book" aria-live="polite"></div>
+  <button class="btn" onclick="location.href='menu.html'">
+    🍽️ Ver Menú
+  </button>
 
-    <nav class="controls-nav">
-      <button id="prevBtn">◀</button>
-      <span id="pageCounter">0 / 0</span>
-      <button id="nextBtn">▶</button>
-    </nav>
-  </main>
-
-  <!-- Lightbox -->
-  <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true">
-    <div class="lightbox-content">
-      <button id="closeLb" class="close">✕</button>
-      <img id="lbImg" src="" alt="foto ampliada" />
-      <h3 id="lbTitle"></h3>
-      <p id="lbDesc"></p>
-      <p id="lbPrice"></p>
-    </div>
-  </div>
-
-  <!-- GSAP CDN for nicer flip -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-pk2wqQz6rZ0u5W+Y9Z7t8+vP3Qd6w2sRr9qz6m3wqD0u3vYjTQxQfF8B2v4h6H6XfQbq+7g6Z5Z5YwM0sQx0Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <button class="btn" onclick="location.href='admin.html'">
+    ⚙️ Administrador
+  </button>
 
   <script src="script.js" defer></script>
 </body>
