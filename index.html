@@ -1,40 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Menú Interactivo - Restaurante</title>
 
-<!doctype html><html lang="es"><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Menu Restaurante</title>
-<link rel="stylesheet" href="styles.css"/>
-<link rel="manifest" href="manifest.json"/>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#c94f2a"/>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<header class="topbar">
-  <h1>Menú Interactivo</h1>
-  <button id="adminBtn">⚙️ Admin</button>
-  <button id="cartBtn">🛒 (<span id="cartCount">0</span>)</button>
-  <button id="themeBtn">🌙</button>
-  <select id="langSel"><option value="es">ES</option><option value="en">EN</option></select>
-</header>
+  <header class="topbar">
+    <div class="brand">
+      <h1 id="brandTitle">Restaurante</h1>
+    </div>
 
-<main id="menu"></main>
+    <div class="controls">
+      <label class="small">Idioma
+        <select id="langSelect" aria-label="Seleccionar idioma">
+          <option value="es">ES</option>
+          <option value="en">EN</option>
+        </select>
+      </label>
 
-<div id="cartDrawer" class="drawer hidden">
-  <h2>Carrito</h2>
-  <div id="cartItems"></div>
-  <p>Total: <span id="cartTotal"></span></p>
-  <button id="closeCart">Cerrar</button>
-</div>
+      <label class="small">Categoría
+        <select id="catFilter">
+          <option value="all">Todas</option>
+        </select>
+      </label>
 
-<div id="adminPanel" class="drawer hidden">
-  <h2>Admin Platos</h2>
-  <form id="dishForm">
-    <input name="name" placeholder="Nombre"/>
-    <input name="price" placeholder="Precio"/>
-    <select name="cat"><option>Entradas</option><option>Platos fuertes</option></select>
-    <input type="file" name="imgFile"/>
-    <button>Guardar</button>
-  </form>
-  <div id="dishList"></div>
-  <button id="closeAdmin">Cerrar</button>
-</div>
+      <button id="toggleDark" title="Modo oscuro">🌙</button>
+      <button id="openAdmin">⚙️ Admin</button>
+    </div>
+  </header>
 
-<script src="app.js"></script>
-</body></html>
+  <main class="book-wrap">
+    <div id="book" class="book" aria-live="polite"></div>
+
+    <nav class="controls-nav">
+      <button id="prevBtn" aria-label="Página anterior">◀</button>
+      <span id="pageCounter">0 / 0</span>
+      <button id="nextBtn" aria-label="Siguiente página">▶</button>
+    </nav>
+  </main>
+
+  <!-- Lightbox / ampliación -->
+  <div id="lightbox" class="lightbox hidden" role="dialog" aria-modal="true">
+    <div class="lightbox-content">
+      <button id="closeLb" class="close">✕</button>
+      <img id="lbImg" src="" alt="foto ampliada" />
+      <h3 id="lbTitle"></h3>
+      <p id="lbDesc"></p>
+      <p id="lbPrice"></p>
+    </div>
+  </div>
+
+  <!-- Admin modal -->
+  <div id="admin" class="admin hidden" role="dialog" aria-modal="true">
+    <div class="admin-inner">
+      <button id="closeAdmin" class="close-admin">✕</button>
+      <h2>Panel de administración</h2>
+
+      <form id="dishForm">
+        <input type="hidden" id="dishIndex" value="-1">
+        <label>Título (ES)<input id="title_es" placeholder="Ceviche Tropical"></label>
+        <label>Title (EN)<input id="title_en" placeholder="Tropical Ceviche"></label>
+        <label>Descripción (ES)<textarea id="desc_es" rows="2"></textarea></label>
+        <label>Description (EN)<textarea id="desc_en" rows="2"></textarea></label>
+        <label>Categoría<input id="category" placeholder="Mariscos"></label>
+        <label>Precio<input id="price" placeholder="32000"></label>
+        <label>Imagen (subir)
+          <input id="imgFile" type="file" accept="image/*" />
+        </label>
+
+        <div class="admin-actions">
+          <button type="button" id="addDish">Agregar / Actualizar</button>
+          <button type="button" id="clearForm">Limpiar</button>
+        </div>
+      </form>
+
+      <div class="admin-tools">
+        <button id="downloadJSON">Descargar JSON</button>
+        <input type="file" id="uploadJSON" accept=".json" />
+        <button id="resetSample">Restaurar ejemplo</button>
+      </div>
+
+      <h3>Platos</h3>
+      <div id="adminList" class="admin-list"></div>
+      <p class="hint">Los cambios se guardan en <strong>localStorage</strong>. Descarga JSON para persistir fuera del navegador.</p>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(()=>console.log('SW fail'));
+    }
+  </script>
+</body>
+</html>
