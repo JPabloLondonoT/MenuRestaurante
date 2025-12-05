@@ -10,98 +10,221 @@
   <meta name="theme-color" content="#c94f2a">
 
   <style>
-    /* --- doble página tipo libro --- */
-    .book-wrap {
-      perspective: 2000px;
-    }
-
-    .book {
-      position: relative;
-      width: 100%;
-      height: calc(100vh - 120px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .page-double {
-      position: relative;
-      width: 90%;
-      height: 90%;
-      display: flex;
-      box-shadow: 0 0 30px rgba(0,0,0,.2);
-      border-radius: 10px;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    .left-page,
-    .right-page {
-      width: 50%;
-      position: relative;
-      background-size: cover;
-      background-position: center;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-
-    .page-shadow {
-      position: absolute;
-      top: 0;
-      width: 40px;
+    /****************************************************
+     *   ESTILOS GENERALES
+     ****************************************************/
+    html, body {
+      margin: 0;
+      padding: 0;
       height: 100%;
-      background: linear-gradient(to left, rgba(0,0,0,.2), transparent);
-      right: 50%;
-      z-index: 10;
-      pointer-events: none;
+      width: 100%;
+      overflow: hidden;
+      background: #f5f5f5;
+      font-family: sans-serif;
     }
 
-    /* dark mode */
     body.dark {
       background: #111;
-      color: white;
+      color: #fff;
     }
 
-    body.dark .page-double {
-      background: #222;
-    }
-
-    /* tocar para pasar */
-    .touch-layer {
+    /****************************************************
+     * BOTONES SUPERIORES FLOTANTES
+     ****************************************************/
+    .floating-controls {
       position: absolute;
-      width: 50%;
-      height: 100%;
-      top: 0;
-      z-index: 20;
+      top: 10px;
+      left: 10px;
+      z-index: 9999;
+      display: flex;
+      gap: 10px;
     }
-    .touch-left { left: 0; }
-    .touch-right { right: 0; }
 
+    .floating-right {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 9999;
+      display: flex;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      border: none;
+      padding: 10px 12px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .icon-btn:hover {
+      background: rgba(0,0,0,0.7);
+    }
+
+    select {
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+
+    /****************************************************
+     * CONTENEDOR PRINCIPAL DE LA PÁGINA ÚNICA
+     ****************************************************/
+    #menuView {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .page-single {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-color: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    /* Si trae texto */
+    .dish-info {
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(4px);
+      padding: 15px;
+      border-radius: 10px;
+      color: #fff;
+      max-width: 90%;
+      margin-bottom: 20px;
+    }
+
+    .dish-name {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .dish-desc {
+      font-size: 18px;
+      margin-top: 5px;
+    }
+
+    .dish-price {
+      margin-top: 10px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #ffcc66;
+    }
+
+    /****************************************************
+     * NAVEGACIÓN
+     ****************************************************/
+    .controls-nav {
+      position: absolute;
+      bottom: 15px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      z-index: 9999;
+    }
+
+    .nav-btn {
+      padding: 10px 15px;
+      font-size: 20px;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(0,0,0,0.7);
+    }
+
+    #pageCounter {
+      font-size: 18px;
+      color: #fff;
+      text-shadow: 0 0 5px #000;
+    }
+
+    /****************************************************
+     * SIDEBAR
+     ****************************************************/
+    .sidebar {
+      position: fixed;
+      width: 280px;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: #ffffffee;
+      backdrop-filter: blur(10px);
+      box-shadow: 3px 0 10px rgba(0,0,0,0.3);
+      transform: translateX(-100%);
+      transition: .3s;
+      padding: 15px;
+      z-index: 10000;
+    }
+
+    .sidebar.dark {
+      background: #222222ee;
+      color: #fff;
+    }
+
+    .sidebar.visible {
+      transform: translateX(0);
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cat-list li {
+      padding: 10px 5px;
+      cursor: pointer;
+    }
+
+    .cat-list li:hover {
+      background: #ddd;
+    }
   </style>
-
 </head>
 
 <body>
-  <!-- ======================== HEADER ======================== -->
-  <header class="topbar">
+
+  <!-- =====================================
+       BOTONES SUPERIORES FLOTANTES
+       ===================================== -->
+  <div class="floating-controls">
     <button id="openSidebar" class="icon-btn">☰</button>
+  </div>
 
-    <div class="controls-right">
-      <select id="langSelect" class="langSelectHeader">
-        <option value="es">ES</option>
-        <option value="en">EN</option>
-      </select>
+  <div class="floating-right">
+    <select id="langSelect">
+      <option value="es">ES</option>
+      <option value="en">EN</option>
+    </select>
+    <button id="toggleDark" class="icon-btn">🌙</button>
+  </div>
 
-      <button id="toggleDark" class="icon-btn">🌙</button>
-    </div>
-  </header>
-
-
-  <!-- ======================== SIDEBAR CATEGORÍAS ======================== -->
-  <aside id="sidebar" class="sidebar hidden">
+  <!-- =====================================
+       SIDEBAR
+       ===================================== -->
+  <aside id="sidebar" class="sidebar">
     <div class="sidebar-header">
       <h3 id="catTitle">Categorías</h3>
       <button id="closeSidebar" class="icon-btn">✕</button>
@@ -109,14 +232,11 @@
     <ul id="catList" class="cat-list"></ul>
   </aside>
 
-
-  <!-- ======================== LIBRO ======================== -->
-  <main class="book-wrap">
-    <div id="book" class="book"></div>
-
-    <!-- capas táctiles para swipe -->
-    <div class="touch-layer touch-left" id="touchLeft"></div>
-    <div class="touch-layer touch-right" id="touchRight"></div>
+  <!-- =====================================
+       VISOR DE UNA SOLA PÁGINA
+       ===================================== -->
+  <main id="menuView">
+    <div id="pageContainer" class="page-single"></div>
 
     <nav class="controls-nav">
       <button id="prevBtn" class="nav-btn">◀</button>
@@ -125,22 +245,11 @@
     </nav>
   </main>
 
-
-  <!-- ======================== LIGHTBOX ======================== -->
-  <div id="lightbox" class="lightbox hidden">
-    <div class="lightbox-content">
-      <button id="closeLb" class="close">✕</button>
-      <img id="lbImg" src="" alt="Foto">
-    </div>
-  </div>
-
-  <!-- ===== sonido de pasar página ===== -->
-  <audio id="flipSound" src="page-flip.mp3" preload="auto"></audio>
-
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-  <!-- Script principal -->
+  <!-- SCRIPT PRINCIPAL -->
   <script src="script.js" defer></script>
+
 </body>
 </html>

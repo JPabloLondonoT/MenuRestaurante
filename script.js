@@ -53,7 +53,7 @@ async function loadDishes() {
 }
 
 /* ============================================================
-   MENU: CATEGORÍAS (select)
+   CATEGORÍAS (select)
    ============================================================ */
 function initCategories() {
   const select = document.getElementById("catFilter");
@@ -76,7 +76,7 @@ function initCategories() {
 }
 
 /* ============================================================
-   MENU: Filtrar platos
+   Filtrar platos
    ============================================================ */
 function applyFilter() {
   const cat = document.getElementById("catFilter").value;
@@ -91,13 +91,27 @@ function applyFilter() {
 }
 
 /* ============================================================
-   MENU: Lightbox
+   Lightbox
    ============================================================ */
 function openLightbox(d) {
   document.getElementById("lbImg").src = d.img;
-  document.getElementById("lbTitle").textContent = lang === "es" ? d.title_es : d.title_en;
-  document.getElementById("lbDesc").textContent = lang === "es" ? d.desc_es : d.desc_en;
-  document.getElementById("lbPrice").textContent = "$ " + Number(d.price).toLocaleString();
+
+  if (d.title_es || d.title_en) {
+    document.getElementById("lbTitle").textContent =
+      lang === "es" ? d.title_es : d.title_en;
+  } else {
+    document.getElementById("lbTitle").textContent = "";
+  }
+
+  if (d.desc_es || d.desc_en) {
+    document.getElementById("lbDesc").textContent =
+      lang === "es" ? d.desc_es : d.desc_en;
+  } else {
+    document.getElementById("lbDesc").textContent = "";
+  }
+
+  document.getElementById("lbPrice").textContent =
+    d.price ? "$ " + Number(d.price).toLocaleString() : "";
 
   document.getElementById("lightbox").classList.remove("hidden");
 }
@@ -110,7 +124,6 @@ if (document.getElementById("closeLb")) {
 /* ============================================================
    BOTONES DE PÁGINAS
    ============================================================ */
-
 function playPageSound() {
   const flipSound = new Audio("sounds/page-flip.mp3");
   flipSound.currentTime = 0;
@@ -149,11 +162,12 @@ function updateCounter() {
 }
 
 /* ============================================================
-   CAMBIO DE IDIOMA (categorías, títulos, sidebar)
+   CAMBIO DE IDIOMA
    ============================================================ */
 if (document.getElementById("langSelect")) {
   document.getElementById("langSelect").onchange = (e) => {
     lang = e.target.value;
+
     document.getElementById("catTitle").textContent =
       lang === "es" ? "Categorías" : "Categories";
 
@@ -173,7 +187,7 @@ if (document.getElementById("toggleDark")) {
 }
 
 /* ============================================================
-   ANIMACIÓN PASO PÁGINA + SONIDO + SWIPE
+   SWIPE
    ============================================================ */
 function addSwipeEvents(layer) {
   layer.addEventListener("touchstart", e => {
@@ -202,7 +216,7 @@ function handleSwipe() {
 }
 
 /* ============================================================
-   RENDER PÁGINA DOBLE (libro real con GSAP)
+   NUEVO RENDER: UNA SOLA PÁGINA
    ============================================================ */
 function renderPage(direction = 0) {
   const book = document.getElementById("book");
@@ -217,55 +231,57 @@ function renderPage(direction = 0) {
 
   const d = filtered[currentPage];
 
-  const pageDouble = document.createElement("div");
-  pageDouble.className = "page-double";
+  const page = document.createElement("div");
+  page.className = "single-page";
 
-  const shadow = document.createElement("div");
-  shadow.className = "page-shadow";
+  page.style.backgroundImage = `url('${d.background || d.img}')`;
+  page.style.backgroundSize = "cover";
+  page.style.backgroundPosition = "center";
+  page.style.width = "100%";
+  page.style.height = "100%";
+  page.style.position = "relative";
+  page.style.display = "flex";
+  page.style.flexDirection = "column";
+  page.style.justifyContent = "flex-end";
+  page.style.padding = "20px";
 
-  const left = document.createElement("div");
-  left.className = "left-page";
+  // SI NO TIENE TEXTO → no mostrar contenido
+  let hasText =
+    (d.title_es || d.title_en) ||
+    (d.desc_es || d.desc_en) ||
+    d.price;
 
-  const right = document.createElement("div");
-  right.className = "right-page";
+  if (hasText) {
+    const box = document.createElement("div");
+    box.className = "info-box";
+    box.style.background = "rgba(0,0,0,0.55)";
+    box.style.color = "white";
+    box.style.padding = "15px";
+    box.style.borderRadius = "10px";
+    box.style.maxWidth = "90%";
 
-  right.innerHTML = `
+    box.innerHTML = `
       <h2>${lang === "es" ? d.title_es : d.title_en}</h2>
       <p>${lang === "es" ? d.desc_es : d.desc_en}</p>
-      <p class="price">$ ${Number(d.price).toLocaleString()}</p>
-  `;
-  right.style.backgroundImage = `url('${d.background}')`;
-  right.style.backgroundSize = "cover";
+      ${d.price ? `<p class="price">$ ${Number(d.price).toLocaleString()}</p>` : ""}
+    `;
 
-  right.onclick = () => openLightbox(d);
+    page.appendChild(box);
+    page.onclick = () => openLightbox(d);
+  }
 
-  pageDouble.appendChild(left);
-  pageDouble.appendChild(right);
-  pageDouble.appendChild(shadow);
-
-  // Eventos táctiles en toda la página
+  // Swipe
   addSwipeEvents(document.getElementById("touchLeft"));
   addSwipeEvents(document.getElementById("touchRight"));
 
-  book.appendChild(pageDouble);
+  book.appendChild(page);
 
-  // Animación estilo libro + sonido
-  if (direction !== 0) {
-    flipSound.currentTime = 0;
-    flipSound.play();
-
-    gsap.fromTo(
-      pageDouble,
-      { rotateY: direction > 0 ? -90 : 90, opacity: 0 },
-      { rotateY: 0, opacity: 1, duration: 0.6, ease: "power2.out" }
-    );
-  } else {
-    gsap.fromTo(
-      pageDouble,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.4 }
-    );
-  }
+  // Animación tipo fade
+  gsap.fromTo(
+    page,
+    { opacity: 0 },
+    { opacity: 1, duration: 0.5, ease: "power2.out" }
+  );
 }
 
 /* ============================================================
