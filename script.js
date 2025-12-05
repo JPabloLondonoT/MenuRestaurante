@@ -5,28 +5,18 @@ let dishes = [];
 let currentPage = 0;
 let filtered = [];
 let lang = "es";
-const MAX_IMG_MB = 4;
-const MAX_BG_MB = 6;
 
 let touchStartX = 0;
 let touchEndX = 0;
 
-const flipSound = document.getElementById("flipSound");
-
 /* ============================================================
-   NORMALIZAR PARA EVITAR CAMPOS VACÍOS QUE ROMPEN LA PÁGINA
+   UTILIDADES
    ============================================================ */
 function normalizeDish(d) {
   return {
     ...d,
-    img: (d.img && d.img.trim() !== "")
-      ? d.img
-      : "img/no-image.png",
-
-    background: (d.background && d.background.trim() !== "")
-      ? d.background
-      : "img/default-bg.jpg",
-
+    img: d.img || "img/no-image.png",
+    background: d.background || "img/default-bg.jpg",
     title_es: d.title_es || "",
     title_en: d.title_en || "",
     desc_es: d.desc_es || "",
@@ -36,48 +26,27 @@ function normalizeDish(d) {
   };
 }
 
-/* ============================================================
-   UTILIDADES: Convertir imágenes a Base64
-   ============================================================ */
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-/* ============================================================
-   CARGAR dishes.json AUTOMÁTICAMENTE
-   ============================================================ */
 async function loadDishes() {
   try {
     const resp = await fetch("dishes.json", { cache: "no-store" });
     dishes = (await resp.json()).map(normalizeDish);
-
+    filtered = dishes;
   } catch (e) {
-    alert("⚠ No se pudo cargar dishes.json del servidor");
+    alert("⚠ No se pudo cargar dishes.json");
     dishes = [];
+    filtered = [];
   }
 
-  // Menú
   if (document.getElementById("book")) {
     initCategories();
     initSidebarCategories();
-    filtered = dishes;
     renderPage();
     updateCounter();
-  }
-
-  // Admin
-  if (document.getElementById("adminList")) {
-    adminRenderList();
   }
 }
 
 /* ============================================================
-   CATEGORÍAS (select)
+   CATEGORÍAS
    ============================================================ */
 function initCategories() {
   const select = document.getElementById("catFilter");
@@ -88,7 +57,6 @@ function initCategories() {
   `;
 
   const cats = [...new Set(dishes.map(d => d.category))];
-
   cats.forEach(c => {
     const op = document.createElement("option");
     op.value = c;
@@ -99,44 +67,22 @@ function initCategories() {
   select.onchange = applyFilter;
 }
 
-/* ============================================================
-   Filtrar platos
-   ============================================================ */
 function applyFilter() {
   const cat = document.getElementById("catFilter").value;
-
-  filtered = cat === "all"
-    ? dishes
-    : dishes.filter(d => d.category === cat);
-
+  filtered = cat === "all" ? dishes : dishes.filter(d => d.category === cat);
   currentPage = 0;
   renderPage();
   updateCounter();
 }
 
 /* ============================================================
-   Lightbox
+   LIGHTBOX
    ============================================================ */
 function openLightbox(d) {
   document.getElementById("lbImg").src = d.img;
-
-  if (d.title_es || d.title_en) {
-    document.getElementById("lbTitle").textContent =
-      lang === "es" ? d.title_es : d.title_en;
-  } else {
-    document.getElementById("lbTitle").textContent = "";
-  }
-
-  if (d.desc_es || d.desc_en) {
-    document.getElementById("lbDesc").textContent =
-      lang === "es" ? d.desc_es : d.desc_en;
-  } else {
-    document.getElementById("lbDesc").textContent = "";
-  }
-
-  document.getElementById("lbPrice").textContent =
-    d.price ? "$ " + Number(d.price).toLocaleString() : "";
-
+  document.getElementById("lbTitle").textContent = lang === "es" ? d.title_es : d.title_en;
+  document.getElementById("lbDesc").textContent = lang === "es" ? d.desc_es : d.desc_en;
+  document.getElementById("lbPrice").textContent = d.price ? "$ " + Number(d.price).toLocaleString() : "";
   document.getElementById("lightbox").classList.remove("hidden");
 }
 
@@ -146,7 +92,7 @@ if (document.getElementById("closeLb")) {
 }
 
 /* ============================================================
-   BOTONES DE PÁGINAS
+   BOTONES DE PÁGINA
    ============================================================ */
 function playPageSound() {
   const flipSound = new Audio("sounds/page-flip.mp3");
@@ -214,17 +160,13 @@ if (document.getElementById("toggleDark")) {
    SWIPE
    ============================================================ */
 function addSwipeEvents(layer) {
-  layer.addEventListener("touchstart", e => {
-    touchStartX = e.changedTouches[0].screenX;
-  });
+  layer.addEventListener("touchstart", e => (touchStartX = e.changedTouches[0].screenX));
   layer.addEventListener("touchend", e => {
     touchEndX = e.changedTouches[0].screenX;
     handleSwipe();
   });
 
-  layer.addEventListener("mousedown", e => {
-    touchStartX = e.screenX;
-  });
+  layer.addEventListener("mousedown", e => (touchStartX = e.screenX));
   layer.addEventListener("mouseup", e => {
     touchEndX = e.screenX;
     handleSwipe();
@@ -235,60 +177,44 @@ function handleSwipe() {
   const diff = touchEndX - touchStartX;
   if (Math.abs(diff) < 40) return;
 
-  if (diff < 0) nextPage();
-  else prevPage();
+  diff < 0 ? nextPage() : prevPage();
 }
 
 /* ============================================================
-   NUEVO RENDER: UNA SOLA PÁGINA
+   RENDER
    ============================================================ */
 function renderPage(direction = 0) {
   const book = document.getElementById("book");
   if (!book) return;
 
   book.innerHTML = "";
-
   if (filtered.length === 0) {
     book.innerHTML = "<p>No hay platos disponibles.</p>";
     return;
   }
 
   const d = filtered[currentPage];
-
   const page = document.createElement("div");
   page.className = "single-page";
 
-  // Imagen de fondo segura
-let bg = null;
+  let bg = d.background || d.img || "img/default-bg.jpg";
 
-// Prioridad: background > img > fallback
-if (d.background && d.background !== "null") bg = d.background;
-else if (d.img && d.img !== "null") bg = d.img;
-else bg = "img/default-bg.jpg"; // ← pon aquí una imagen por defecto o deja un color
-
-// Si quieres solo un color cuando no hay imagen:
-if (bg === "img/default-bg.jpg") {
-  page.style.background = "#000"; // fondo negro
-  page.style.backgroundImage = "none";
-} else {
-  page.style.backgroundImage = `url('${bg}')`;
-}
+  if (bg === "img/default-bg.jpg") {
+    page.style.background = "#000";
+  } else {
+    page.style.backgroundImage = `url('${bg}')`;
+  }
 
   page.style.backgroundSize = "cover";
   page.style.backgroundPosition = "center";
   page.style.width = "100%";
   page.style.height = "100%";
-  page.style.position = "relative";
   page.style.display = "flex";
   page.style.flexDirection = "column";
   page.style.justifyContent = "flex-end";
   page.style.padding = "20px";
 
-  // SI NO TIENE TEXTO → no mostrar contenido
-  let hasText =
-    (d.title_es || d.title_en) ||
-    (d.desc_es || d.desc_en) ||
-    d.price;
+  let hasText = d.title_es || d.desc_es || d.price;
 
   if (hasText) {
     const box = document.createElement("div");
@@ -306,138 +232,19 @@ if (bg === "img/default-bg.jpg") {
     `;
 
     page.appendChild(box);
-    if (d.img) page.onclick = () => openLightbox(d);
+    page.onclick = () => openLightbox(d);
   }
 
-  // Swipe
   addSwipeEvents(document.getElementById("touchLeft"));
   addSwipeEvents(document.getElementById("touchRight"));
 
   book.appendChild(page);
 
-  // Animación tipo fade
-  gsap.fromTo(
-    page,
-    { opacity: 0 },
-    { opacity: 1, duration: 0.5, ease: "power2.out" }
-  );
+  gsap.fromTo(page, { opacity: 0 }, { opacity: 1, duration: 0.5 });
 }
 
 /* ============================================================
-   ==================== ADMIN SIN CAMBIOS ======================
-   ============================================================ */
-function adminRenderList() {
-  const cont = document.getElementById("adminList");
-  if (!cont) return;
-
-  cont.innerHTML = "";
-
-  dishes.forEach((d, i) => {
-    const div = document.createElement("div");
-    div.className = "admin-item";
-
-    div.innerHTML = `
-      <img src="${d.img}" class="thumb-small">
-      <div class="info">
-        <strong>${d.title_es}</strong><br>
-        <small>${d.category} – $${d.price}</small>
-      </div>
-      <button class="editBtn" data-i="${i}">✏️</button>
-      <button class="delBtn" data-i="${i}">🗑</button>
-    `;
-
-    cont.appendChild(div);
-  });
-
-  document.querySelectorAll(".editBtn").forEach(b =>
-    b.onclick = () => adminLoadToForm(b.dataset.i)
-  );
-
-  document.querySelectorAll(".delBtn").forEach(b =>
-    b.onclick = () => adminDelete(b.dataset.i)
-  );
-}
-
-function adminLoadToForm(i) {
-  const d = dishes[i];
-
-  document.getElementById("dishIndex").value = i;
-  document.getElementById("title_es").value = d.title_es;
-  document.getElementById("title_en").value = d.title_en;
-  document.getElementById("desc_es").value = d.desc_es;
-  document.getElementById("desc_en").value = d.desc_en;
-  document.getElementById("category").value = d.category;
-  document.getElementById("price").value = d.price;
-
-  document.getElementById("imgPreview").src = d.img;
-  document.getElementById("bgPreview").src = d.background;
-}
-
-function adminClearForm() {
-  document.getElementById("dishForm").reset();
-  document.getElementById("dishIndex").value = -1;
-  document.getElementById("imgPreview").src = "";
-  document.getElementById("bgPreview").src = "";
-}
-
-function adminDelete(i) {
-  if (!confirm("¿Eliminar plato?")) return;
-  dishes.splice(i, 1);
-  adminRenderList();
-}
-
-async function adminSave() {
-  const i = Number(document.getElementById("dishIndex").value);
-
-  const d = {
-    title_es: document.getElementById("title_es").value,
-    title_en: document.getElementById("title_en").value,
-    desc_es: document.getElementById("desc_es").value,
-    desc_en: document.getElementById("desc_en").value,
-    category: document.getElementById("category").value,
-    price: Number(document.getElementById("price").value),
-    img: document.getElementById("imgPreview").src,
-    background: document.getElementById("bgPreview").src,
-  };
-
-  const imgFile = document.getElementById("imgFile").files[0];
-  const bgFile = document.getElementById("bgFile").files[0];
-
-  if (imgFile) {
-    if (imgFile.size > MAX_IMG_MB * 1024 * 1024) {
-      alert("Miniatura demasiado grande.");
-      return;
-    }
-    d.img = await fileToBase64(imgFile);
-  }
-
-  if (bgFile) {
-    if (bgFile.size > MAX_BG_MB * 1024 * 1024) {
-      alert("Imagen de fondo demasiado grande.");
-      return;
-    }
-    d.background = await fileToBase64(bgFile);
-  }
-
-  if (i === -1) dishes.push(d);
-  else dishes[i] = d;
-
-  adminClearForm();
-  adminRenderList();
-}
-
-function adminDownload() {
-  const blob = new Blob([JSON.stringify(dishes, null, 2)], {
-    type: "application/json"
-  });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "dishes.json";
-  a.click();
-}
-
-/* ============================================================
-   SIDEBAR CATEGORÍAS
+   SIDEBAR
    ============================================================ */
 function initSidebarCategories() {
   const list = document.getElementById("catList");
@@ -458,7 +265,6 @@ function initSidebarCategories() {
   list.appendChild(liAll);
 
   const cats = [...new Set(dishes.map(d => d.category))];
-
   cats.forEach(cat => {
     const li = document.createElement("li");
     li.textContent = cat;
@@ -493,12 +299,4 @@ if (document.getElementById("closeSidebar")) {
 /* ============================================================
    INICIO
    ============================================================ */
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadDishes();
-
-  if (document.getElementById("addDish")) {
-    document.getElementById("addDish").onclick = adminSave;
-    document.getElementById("clearForm").onclick = adminClearForm;
-    document.getElementById("downloadJSON").onclick = adminDownload;
-  }
-});
+document.addEventListener("DOMContentLoaded", loadDishes);
