@@ -14,6 +14,29 @@ let touchEndX = 0;
 const flipSound = document.getElementById("flipSound");
 
 /* ============================================================
+   NORMALIZAR PARA EVITAR CAMPOS VACÍOS QUE ROMPEN LA PÁGINA
+   ============================================================ */
+function normalizeDish(d) {
+  return {
+    ...d,
+    img: (d.img && d.img.trim() !== "")
+      ? d.img
+      : "img/no-image.png",
+
+    background: (d.background && d.background.trim() !== "")
+      ? d.background
+      : "img/default-bg.jpg",
+
+    title_es: d.title_es || "",
+    title_en: d.title_en || "",
+    desc_es: d.desc_es || "",
+    desc_en: d.desc_en || "",
+    category: d.category || "OTROS",
+    price: d.price || 0,
+  };
+}
+
+/* ============================================================
    UTILIDADES: Convertir imágenes a Base64
    ============================================================ */
 function fileToBase64(file) {
@@ -31,7 +54,8 @@ function fileToBase64(file) {
 async function loadDishes() {
   try {
     const resp = await fetch("dishes.json", { cache: "no-store" });
-    dishes = await resp.json();
+    dishes = (await resp.json()).map(normalizeDish);
+
   } catch (e) {
     alert("⚠ No se pudo cargar dishes.json del servidor");
     dishes = [];
