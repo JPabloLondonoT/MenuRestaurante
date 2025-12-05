@@ -258,7 +258,22 @@ function renderPage(direction = 0) {
   const page = document.createElement("div");
   page.className = "single-page";
 
-  page.style.backgroundImage = `url('${d.background || d.img}')`;
+  // Imagen de fondo segura
+let bg = null;
+
+// Prioridad: background > img > fallback
+if (d.background && d.background !== "null") bg = d.background;
+else if (d.img && d.img !== "null") bg = d.img;
+else bg = "img/default-bg.jpg"; // ← pon aquí una imagen por defecto o deja un color
+
+// Si quieres solo un color cuando no hay imagen:
+if (bg === "img/default-bg.jpg") {
+  page.style.background = "#000"; // fondo negro
+  page.style.backgroundImage = "none";
+} else {
+  page.style.backgroundImage = `url('${bg}')`;
+}
+
   page.style.backgroundSize = "cover";
   page.style.backgroundPosition = "center";
   page.style.width = "100%";
@@ -291,7 +306,7 @@ function renderPage(direction = 0) {
     `;
 
     page.appendChild(box);
-    page.onclick = () => openLightbox(d);
+    if (d.img) page.onclick = () => openLightbox(d);
   }
 
   // Swipe
