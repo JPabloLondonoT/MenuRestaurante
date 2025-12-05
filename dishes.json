@@ -6,8 +6,8 @@
     "desc_en": "Surimi katsu, una sofisticada opción de Kanikamas empanizados con queso crema. Una entrada crujiente y cremosa que prepara el paladar.",
     "category": "ENTRADAS",
     "price": 16000,
-    "img": "",
-    "background": ""
+    "img": null,
+    "background": null
   },
   {
     "title_es": "TOTORO",
@@ -16,8 +16,8 @@
     "desc_en": "Versátiles y personalizables onigiris, con rellenos clásicos de pollo, atún o palmitos. Ideales para un bocado rápido y sabroso.",
     "category": "ENTRADAS",
     "price": 16000,
-    "img": "",
-    "background": ""
+    "img": null,
+    "background": null
   },
   {
     "title_es": "CHIHIRO",
@@ -26,17 +26,17 @@
     "desc_en": "Irresistibles gyozas rellenas de carne de cerdo, servidas con una auténtica salsa agridulce, perfectas para compartir y disfrutar.",
     "category": "ENTRADAS",
     "price": 14000,
-    "img": "",
-    "background": ""
+    "img": null,
+    "background": null
   },
   {
     "title_es": "ENTRADAS",
-    "title_en": "",
-    "desc_es": "",
-    "desc_en": "",
+    "title_en": null,
+    "desc_es": null,
+    "desc_en": null,
     "category": "ENTRADAS",
     "price": 0,
-    "img": "",
-    "background": ""
+    "img": null,
+    "background": null
   }
 ]
